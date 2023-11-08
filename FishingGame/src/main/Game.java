@@ -5,10 +5,12 @@ public class Game implements Runnable {
 	private GameWindow gameWindow;
 	private GamePanel gPanel;
 	private Thread gameThread;
+	private GameStats gameStats;
 	private final int FPS = 60;
 
 	public Game() {
-		gPanel = new GamePanel();
+		gameStats = new GameStats(gPanel);
+		gPanel = new GamePanel(this, gameStats);
 		gameWindow = new GameWindow(gPanel);
 		gPanel.requestFocus();
 		startGameLoop();

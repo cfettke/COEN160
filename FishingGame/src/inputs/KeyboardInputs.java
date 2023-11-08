@@ -5,13 +5,16 @@ import java.awt.event.KeyListener;
 
 import main.GamePanel;
 import main.GameState;
+import main.GameStats;
 
 public class KeyboardInputs implements KeyListener {
 
 	private GamePanel gPanel;
+	private GameStats gameStats;
 	
-	public KeyboardInputs(GamePanel gPanel) {
+	public KeyboardInputs(GamePanel gPanel, GameStats gameStats) {
 		this.gPanel = gPanel;
+		this.gameStats = gameStats;
 	}
 	@Override
 	public void keyTyped(KeyEvent e) {
@@ -21,32 +24,9 @@ public class KeyboardInputs implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		// Change based off game state
-		switch(GameState.state) {
-			case PLAYING:
-				// If spacebar pressed, move cursor
-				if(e.getKeyCode() == KeyEvent.VK_SPACE) {
-					System.out.println("Spacebar pressed");
-					gPanel.moveCursor();
-				}
-				
-				// If ESC pressed, show menu
-				else if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-					System.out.println("Menu Opened");
-					GameState.state = GameState.MENU;
-				}
-		
-				break;
-		
-			case MENU:
-				// If ESC pressed, show menu
-				if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-					System.out.println("Menu closed");
-					GameState.state = GameState.PLAYING;
-				}
-				break;
-				
-			default:
+		// If spacebar pressed, move cursor
+		if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+			gPanel.moveCursor();
 		}
 	}
 
@@ -56,8 +36,9 @@ public class KeyboardInputs implements KeyListener {
 		if(e.getKeyCode() == KeyEvent.VK_SPACE) {
 			System.out.println("Spacebar released");
 			gPanel.stopCursor();
+			
+			gameStats.setWagerValidity(false);
+			gameStats.cast();
 		}
-		
 	}
-
 }
