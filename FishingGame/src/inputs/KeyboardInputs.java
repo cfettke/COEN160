@@ -34,10 +34,7 @@ public class KeyboardInputs implements KeyListener {
 	public void keyReleased(KeyEvent e) {
 		// If spacebar released, stop cursor
 		if(e.getKeyCode() == KeyEvent.VK_SPACE) {
-			System.out.println("Spacebar released");
 			gPanel.stopCursor();
-			
-			gameStats.setWagerValidity(false);
 			gameStats.cast();
 		}
 	}
