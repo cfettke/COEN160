@@ -9,7 +9,7 @@ public class Game implements Runnable {
 	private final int FPS = 60;
 
 	public Game() {
-		gameStats = new GameStats(gPanel);
+		gameStats = new GameStats();
 		gPanel = new GamePanel(this, gameStats);
 		gameWindow = new GameWindow(gPanel);
 		gPanel.requestFocus();

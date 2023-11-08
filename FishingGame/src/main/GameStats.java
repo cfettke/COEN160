@@ -5,13 +5,11 @@ import java.util.Random;
 
 // Tracks game statistics
 public class GameStats {
-		
-		private GamePanel gPanel;
 	
 		private int balance = 50;
 		private int averagePrice = 0;	// avg price of all fish caught
-		private int wager = 0;
-		private boolean isValidWager = false;
+		private int wager = -1;
+		private boolean isValidWager = false;	// if user has entered a wager
 		private String currentItem;	// current item caught
 		
 		private Random rand;
@@ -21,8 +19,7 @@ public class GameStats {
 		private HashMap<String, Integer> uncommonCatchableItems;
 		private HashMap<String, Integer> rareCatchableItems;
 	
-		public GameStats(GamePanel gPanel) {
-			this.gPanel = gPanel;
+		public GameStats() {
 			rand = new Random();
 			commonCatchableItems = new HashMap<String, Integer>();
 			uncommonCatchableItems = new HashMap<String, Integer>();
@@ -58,8 +55,13 @@ public class GameStats {
 		// Casting animation, fish animation, update stats
 		public void cast() {
 			if (!isValidWager) return;
+			if (GameState.state == GameState.CASTING) return;
+			
+			isValidWager = false;
 			
 			currentItem = getRandomCatchableItem();
+			System.out.println("Cursor color: " + GamePanel.cursorColor);
+			System.out.println("Item: " + currentItem);
 			
 			GameState.state = GameState.CASTING;	// update game state
 		}
@@ -67,7 +69,7 @@ public class GameStats {
 		// Select random catchable item
 		// cursorColor = red, yellow, or green
 		public String getRandomCatchableItem() {
-			String cursorColor = gPanel.getCursorColor();
+			String cursorColor = GamePanel.cursorColor;
 			
 			Object[] items;
 			Object randItem;
@@ -133,13 +135,16 @@ public class GameStats {
 		}
 		
 		// Set value of wager
-		public void setWagerValue(int wager) {
-			this.wager = wager;
-		}
-		
-		// Set whether wager is actual int or not
-		public void setWagerValidity(boolean isValidWager) {
-			this.isValidWager = isValidWager;
+		public void setWagerValue(String wagerString) {
+			try {
+				int wager = Integer.parseInt(wagerString);	// update game state
+				isValidWager = true;
+				this.wager = wager;
+			}
+			// otherwise print error
+			catch (NumberFormatException exception) {
+				isValidWager = false;
+			}
 		}
 		
 		// getter
