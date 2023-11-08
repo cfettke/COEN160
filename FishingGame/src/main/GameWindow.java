@@ -8,7 +8,7 @@ public class GameWindow {
 	
 	public GameWindow(GamePanel gPanel) {
 		frame = new JFrame();
-		frame.setSize(1200, 700);
+		frame.setSize(1200, 650);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(gPanel);

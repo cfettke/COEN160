@@ -57,11 +57,30 @@ public class GameStats {
 			if (!isValidWager) return;
 			if (GameState.state == GameState.CASTING) return;
 			
-			isValidWager = false;
+			isValidWager = false;	// update wager
 			
+			// Generate random item
 			currentItem = getRandomCatchableItem();
-			System.out.println("Cursor color: " + GamePanel.cursorColor);
-			System.out.println("Item: " + currentItem);
+			int itemValue = getCatchableItemPrice(currentItem);
+			
+			System.out.println("Item Caught: " + currentItem);
+			System.out.println("Value: $" + itemValue);
+			
+			// Recalculate balance based on wager
+			int difference = Math.abs(itemValue - wager);
+			// If wager > value of item, deduct from balance
+			if (wager > itemValue) {
+				balance -= wager;
+			}
+			else if (GamePanel.cursorColor.equals("red")) {
+				balance += itemValue/4;
+			}
+			else if (GamePanel.cursorColor.equals("yellow")) {
+				balance += itemValue/2;
+			}
+			else {
+				balance += itemValue;
+			}
 			
 			GameState.state = GameState.CASTING;	// update game state
 		}
@@ -108,15 +127,6 @@ public class GameStats {
 			return 0;
 		}
 		
-		// Update all statistics. overloaded
-		public void updateStats(int wager) {
-			
-		}
-		//int sales = Integer.parseInt(dataString.substring(dataString.lastIndexOf(":") + 2));
-		// Update all statistics. overloaded
-		public void updateStats() {
-			
-		}
 		
 		//***** Getters and Setters *****//
 		
@@ -127,11 +137,6 @@ public class GameStats {
 		
 		public String getCurrentItem() {
 			return currentItem;
-		}
-		
-		// Update balance and return it
-		public int setBalance(int amount) {
-			return balance += amount;
 		}
 		
 		// Set value of wager

@@ -10,7 +10,7 @@ public class Game implements Runnable {
 
 	public Game() {
 		gameStats = new GameStats();
-		gPanel = new GamePanel(this, gameStats);
+		gPanel = new GamePanel(gameStats);
 		gameWindow = new GameWindow(gPanel);
 		gPanel.requestFocus();
 		startGameLoop();

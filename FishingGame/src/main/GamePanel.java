@@ -1,9 +1,6 @@
 package main;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.ComponentOrientation;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -17,7 +14,6 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -25,17 +21,15 @@ import inputs.KeyboardInputs;
 
 public class GamePanel extends JPanel {
 	
-	private Game game;
 	private GameStats gameStats;
 	
 	private File background;
 	private Image backgroundImage;
 	
-	private KeyboardInputs keyInput;
-	
 	// Timer objects for cursor movement
 	private Timer timer;
 	private TimerTask cursorTask;
+	private TimerTask balanceTask;
 	
 	// Cursor variables
 	private int cursorStart = 150;	// left boundary
@@ -52,13 +46,12 @@ public class GamePanel extends JPanel {
 	private JTextField wagerField = new JTextField(8);
 	private JButton wagerButton = new JButton("Wager");
 	
-	public GamePanel(Game game, GameStats gameStats) {
-		this.game = game;
+	public GamePanel(GameStats gameStats) {
 		this.gameStats = gameStats;
 		this.setLayout(null);
 		addKeyListener(new KeyboardInputs(this, gameStats));
 		wagerField.setToolTipText("Wager");
-		background = new File("C:\\Users\\jackm\\git\\COEN160\\FishingGame\\resources\\lake_background.jpg");
+		background = new File("resources\\lake_background.jpg");
 		try {
 			backgroundImage = ImageIO.read(background);
 		} catch (IOException e) {
@@ -161,7 +154,8 @@ public class GamePanel extends JPanel {
 		
 	    // TODO draw balance
 	    g2d.setColor(new Color(250, 190, 0));
-	    g2d.drawString(Integer.toString(gameStats.getBalance()), 30, 900);
+	    g2d.setFont(new Font("default", Font.BOLD, 50));
+	    g2d.drawString("$" + Integer.toString(gameStats.getBalance()), 1070, 60);
 	    
 	    // Draw reminder
     	g2d.setColor(new Color(255, 180, 0));
@@ -178,6 +172,15 @@ public class GamePanel extends JPanel {
 	    	// TODO Animate fishing rod
 			// TODO Animate fish -> use gameState.getCurrentItem()
 			
+	    	balanceTask = new TimerTask() {
+				// TODO display balance change amount
+				public void run() {
+					
+				}
+			};
+			// Schedule task
+			timer = new Timer();
+			timer.schedule(balanceTask, 0, 1);
 			
 	    	GameState.state = GameState.PLAYING;	// return game state to playing
 	    }	
