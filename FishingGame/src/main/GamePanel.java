@@ -191,7 +191,7 @@ public class GamePanel extends JPanel {
 							else rodRotation -= 0.2;	// Move left
 								
 							// Switch direction
-							if (rodRotation >= 3) moveRodUp = false;
+							if (rodRotation >= 4) moveRodUp = false;
 							if (rodRotation <= -3) moveRodUp = true;
 						
 						}
