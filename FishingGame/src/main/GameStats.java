@@ -7,6 +7,7 @@ import java.util.Random;
 public class GameStats {
 	
 		private int balance = 50;
+		private int balanceDifference = 0;
 		private int averagePrice = 0;	// avg price of all fish caught
 		private int wager = -1;
 		private boolean isValidWager = false;	// if user has entered a wager
@@ -67,20 +68,22 @@ public class GameStats {
 			System.out.println("Value: $" + itemValue);
 			
 			// Recalculate balance based on wager
-			int difference = Math.abs(itemValue - wager);
+			
 			// If wager > value of item, deduct from balance
 			if (wager > itemValue) {
-				balance -= wager;
+				balanceDifference = -wager;
 			}
 			else if (GamePanel.cursorColor.equals("red")) {
-				balance += itemValue/4;
+				balanceDifference = itemValue/4;
 			}
 			else if (GamePanel.cursorColor.equals("yellow")) {
-				balance += itemValue/2;
+				balanceDifference = itemValue/2;
 			}
 			else {
-				balance += itemValue;
+				balanceDifference = itemValue;
 			}
+			
+			balance += balanceDifference;
 			
 			GameState.state = GameState.CASTING;	// update game state
 		}
@@ -133,6 +136,11 @@ public class GameStats {
 		// Return player's balance
 		public int getBalance() {
 			return balance;
+		}
+		
+		// Return how much balance has changed
+		public int getBalanceDifference() {
+			return balanceDifference;
 		}
 		
 		public String getCurrentItem() {
