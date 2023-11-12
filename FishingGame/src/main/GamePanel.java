@@ -28,26 +28,32 @@ public class GamePanel extends JPanel {
 	
 	private File background;
 	private File fishingRod;
+	private File caughtItem;
 	private Image backgroundImage;
 	private BufferedImage fishingRodImage;
+	private Image caughtItemImage;
 	
 	// Timer objects for cursor movement
 	private Timer cursorTimer;
 	private Timer opacityTimer;
 	private Timer gameStateTimer;
 	private Timer rodRotateTimer;
+	private Timer moveItemTimer;
 	private TimerTask cursorTask;
 	private TimerTask opacityTask;
 	private TimerTask gameStateTask;
 	private TimerTask rodRotateTask;
+	private TimerTask moveItemTask;
 	
 	private boolean opacityTimerStarted = false;
 	private boolean gameStateTimerStarted = false;
 	private boolean rodRotateTimerStarted = false;
+	private boolean moveItemTimerStarted = false;
 	
 	private int opacity = 255;	// opacity for balanceDifference
 	private double rodRotation = 0.0;	// degrees to rotate fishing rod by
 	private boolean moveRodUp = true;
+	private int itemY = 400;
 	
 	// Cursor variables
 	private int cursorStart = 150;	// left boundary
@@ -169,40 +175,58 @@ public class GamePanel extends JPanel {
 		}
 	}
 	
-	// Show how much balance has changed
-		public void rotateFishingRod() {
-			if (!rodRotateTimerStarted) {
-				rodRotateTimerStarted = true;
-				rodRotateTask = new TimerTask() {
-					// Gradually decrease opacity of balanceDifference
-					public void run() {
-						// If game idle, bounce rod
-						if (GameState.state == GameState.PLAYING) {
-							if (moveRodUp) rodRotation += 0.025;	// Move up
-							else rodRotation -= 0.025;	// Move left
-								
-							// Switch direction
-							if (rodRotation >= 3) moveRodUp = false;
-							if (rodRotation <= -3) moveRodUp = true;
-						}
-						
-						if (GameState.state == GameState.CASTING) {
-							if (moveRodUp) rodRotation += 0.2;	// Move up
-							else rodRotation -= 0.2;	// Move left
-								
-							// Switch direction
-							if (rodRotation >= 4) moveRodUp = false;
-							if (rodRotation <= -3) moveRodUp = true;
-						
-						}
+	// Rotate rod up and down
+	public void rotateFishingRod() {
+		if (!rodRotateTimerStarted) {
+			rodRotateTimerStarted = true;
+			rodRotateTask = new TimerTask() {
+				// Gradually decrease opacity of balanceDifference
+				public void run() {
+					// If game idle, bounce rod
+					if (GameState.state == GameState.PLAYING) {
+						if (moveRodUp) rodRotation += 0.025;	// Move up
+						else rodRotation -= 0.025;	// Move left
+							
+						// Switch direction
+						if (rodRotation >= 3) moveRodUp = false;
+						if (rodRotation <= -3) moveRodUp = true;
 					}
-				};
-				// Schedule task
-				rodRotateTimer = new Timer();
-				rodRotateTimer.schedule(rodRotateTask, 0, 10);
+					
+					if (GameState.state == GameState.CASTING) {
+						if (moveRodUp) rodRotation += 0.8;	// Move up
+						else rodRotation -= 0.4;	// Move left
+							
+						// Switch direction
+						if (rodRotation >= 10) moveRodUp = false;
+						if (rodRotation <= -3) moveRodUp = true;
+					
+					}
+				}
+			};
+			// Schedule task
+			rodRotateTimer = new Timer();
+			rodRotateTimer.schedule(rodRotateTask, 0, 10);
 			}
-		}
+	}
 	
+	// Move fish up
+	public void moveCaughtItem() {
+		if (!moveItemTimerStarted) {
+			moveItemTimerStarted = true;
+			moveItemTask = new TimerTask() {
+				// move caught item upward
+				public void run() {
+					if (itemY > 200) itemY--;
+				}
+			};
+
+			// Schedule task
+			moveItemTimer = new Timer();
+			moveItemTimer.schedule(moveItemTask, 0, 2);
+		}
+	}
+	
+		
 	// Return game state to 'playing'
 	public void updateGameState() {
 		if (!gameStateTimerStarted) {
@@ -210,26 +234,30 @@ public class GamePanel extends JPanel {
 			gameStateTask = new TimerTask() {
 				// Return state to playing after animations complete
 				public void run() {
-					opacity = 255;
 					gameStateTimerStarted = false;
 					opacityTimerStarted = false;
+					moveItemTimerStarted = false;
 					gameStateTimer.cancel();
 					gameStateTimer.purge();
 					opacityTimer.cancel();
 					opacityTimer.purge();
+					moveItemTimer.cancel();
+					moveItemTimer.purge();
+					opacity = 255;
+					itemY = 400;
 					GameState.state = GameState.PLAYING;	// return game state to playing
 				}
 			};
 			// Schedule task
 			gameStateTimer = new Timer();
-			gameStateTimer.schedule(gameStateTask, 4000);
+			gameStateTimer.schedule(gameStateTask, 5000);
 		}
 	}
 	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D)g;
-
+		
 		// Draw background
 		g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
 		
@@ -248,7 +276,7 @@ public class GamePanel extends JPanel {
 	    // TODO draw balance
 	    g2d.setColor(new Color(250, 190, 0));
 	    g2d.setFont(new Font("default", Font.BOLD, 50));
-	    g2d.drawString("$" + Integer.toString(gameStats.getBalance()), 1070, 60);
+	    g2d.drawString("$" + Integer.toString(gameStats.getBalance()), 1060, 60);
 	    
 	    // Draw reminder
     	g2d.setColor(new Color(255, 180, 0));
@@ -258,6 +286,14 @@ public class GamePanel extends JPanel {
     	g2d.setColor(new Color(255, 0, 0));
     	g2d.setFont(new Font("default", Font.BOLD, 8));
     	g2d.drawString("Only enter numbers!", 26, 35);
+    	
+    	// Draw stats text at bottom
+    	g2d.setColor(new Color(250, 190, 0));
+    	g2d.setFont(new Font("default", Font.BOLD, 18));
+    	String item = gameStats.getCurrentItem();
+    	g2d.drawString("Average Value: $" + gameStats.getAveragePrice(), 20, 600);
+    	g2d.drawString("Last Caught: " + item, 230, 600);
+    	g2d.drawString("Value: $" + gameStats.getCatchableItemPrice(item), 450, 600);
     	
     	// Rotate fishing rod
     	AffineTransform old = g2d.getTransform();
@@ -269,14 +305,27 @@ public class GamePanel extends JPanel {
     	
 	    // If player casts, do animations
 	    if (GameState.state == GameState.CASTING) {
-	    	// TODO Animate fishing rod
-			// TODO Animate fish -> use gameStats.getCurrentItem()
 			
 	    	g2d.setColor(new Color(250, 190, 0, opacity));
 		    g2d.setFont(new Font("default", Font.BOLD, 30));
 		    g2d.drawString("$" + Integer.toString(gameStats.getBalanceDifference()), 1070, 100);
 		    
 	    	displayBalanceDifference();
+	    	
+	    	// Display caught item
+	    	String caughtItemName = gameStats.getCurrentItem();
+	    	caughtItem = new File("resources\\" + caughtItemName.toLowerCase() + ".png");
+			try {
+				caughtItemImage = ImageIO.read(caughtItem);
+			} catch (IOException e) {
+				System.out.println("Failed to load image.");
+				e.printStackTrace();
+			}
+			
+			moveCaughtItem();
+			
+			g2d.drawImage(caughtItemImage, 500, itemY, 200, 200, this);
+	    	
 	    	
 	    	updateGameState();
 	    }	
