@@ -80,13 +80,13 @@ public class GameStats {
 			balanceDifference = -wager;
 		}
 		else if (GamePanel.cursorColor.equals("red")) {
-			balanceDifference = itemValue/4;
+			balanceDifference = itemValue/10 + wager;
 		}
 		else if (GamePanel.cursorColor.equals("yellow")) {
-			balanceDifference = itemValue/2;
+			balanceDifference = itemValue/6 + wager;
 		}
 		else {
-			balanceDifference = itemValue;
+			balanceDifference = itemValue/2 + wager;
 		}
 		
 		balance += balanceDifference;

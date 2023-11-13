@@ -35,6 +35,7 @@ public class KeyboardInputs implements KeyListener {
 		// If spacebar released, stop cursor
 		if(e.getKeyCode() == KeyEvent.VK_SPACE) {
 			gPanel.stopCursor();
+			gPanel.playReelSound();
 			gameStats.cast();
 		}
 	}

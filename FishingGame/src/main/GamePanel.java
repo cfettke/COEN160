@@ -16,9 +16,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import com.sun.tools.javac.Main;
 
 import inputs.KeyboardInputs;
 
@@ -32,6 +39,11 @@ public class GamePanel extends JPanel {
 	private Image backgroundImage;
 	private BufferedImage fishingRodImage;
 	private Image caughtItemImage;
+	
+	// Fishing reel sound effect
+	private Clip fishingReelClip;
+	private AudioInputStream audioInputStream;
+	private boolean reelSoundPlayed = false;
 	
 	// Timer objects for cursor movement
 	private Timer cursorTimer;
@@ -74,6 +86,7 @@ public class GamePanel extends JPanel {
 		this.gameStats = gameStats;
 		this.setLayout(null);
 		addKeyListener(new KeyboardInputs(this, gameStats));
+		// Initialize reel sound effect
 		wagerField.setToolTipText("Wager");
 		background = new File("resources\\lake_background.jpg");
 		fishingRod = new File("resources\\fishing_rod.png");
@@ -226,6 +239,26 @@ public class GamePanel extends JPanel {
 		}
 	}
 	
+	public void playReelSound() {
+		if (!reelSoundPlayed) {
+			reelSoundPlayed = true;
+			try {
+				fishingReelClip = AudioSystem.getClip();
+				audioInputStream = AudioSystem.getAudioInputStream(
+						new File("resources\\fishing_reel.wav").getAbsoluteFile());
+				fishingReelClip.open(audioInputStream);
+			} catch (LineUnavailableException e) {
+				e.printStackTrace();
+			} catch (UnsupportedAudioFileException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			
+			fishingReelClip.start();
+		}
+	}
+	
 		
 	// Return game state to 'playing'
 	public void updateGameState() {
@@ -234,6 +267,7 @@ public class GamePanel extends JPanel {
 			gameStateTask = new TimerTask() {
 				// Return state to playing after animations complete
 				public void run() {
+					fishingReelClip.close();
 					gameStateTimerStarted = false;
 					opacityTimerStarted = false;
 					moveItemTimerStarted = false;
@@ -245,6 +279,7 @@ public class GamePanel extends JPanel {
 					moveItemTimer.purge();
 					opacity = 255;
 					itemY = 400;
+					reelSoundPlayed = false;
 					GameState.state = GameState.PLAYING;	// return game state to playing
 				}
 			};
@@ -305,7 +340,7 @@ public class GamePanel extends JPanel {
     	
 	    // If player casts, do animations
 	    if (GameState.state == GameState.CASTING) {
-			
+	    	
 	    	g2d.setColor(new Color(250, 190, 0, opacity));
 		    g2d.setFont(new Font("default", Font.BOLD, 30));
 		    g2d.drawString("$" + Integer.toString(gameStats.getBalanceDifference()), 1070, 100);
@@ -323,9 +358,7 @@ public class GamePanel extends JPanel {
 			}
 			
 			moveCaughtItem();
-			
 			g2d.drawImage(caughtItemImage, 500, itemY, 200, 200, this);
-	    	
 	    	
 	    	updateGameState();
 	    }	
